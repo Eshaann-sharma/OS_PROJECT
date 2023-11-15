@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        .scrollable-frame {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>System Tracker</h1>
+    </div>
+    <div class="container">
+        <div class="scrollable-frame">
+            <h2>User Processes</h2>
+            <table id="user-process-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>Start Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- User process rows will be dynamically added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div class="scrollable-frame">
+            <h2>System Processes</h2>
+            <table id="system-process-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>Start Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- System process rows will be dynamically added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div class="scrollable-frame">
+            <h2>Kernel Processes</h2>
+            <table id="kernel-process-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>Start Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Kernel process rows will be dynamically added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function updateTable() {
+            $.get("/api/get_processes", function(data) {
+                // Clear previous data
+                $("#user-process-table tbody").empty();
+                $("#system-process-table tbody").empty();
+                $("#kernel-process-table tbody").empty();
+                
+                // Update User Processes
+                data.user_processes.forEach(function(process) {
+                    var row = "<tr><td>" + process.pid + "</td><td>" + process.name + "</td><td>" + format_create_time(process.create_time) + "</td></tr>";
+                    $("#user-process-table tbody").append(row);
+                });
+
+                // Update System Processes
+                data.system_processes.forEach(function(process) {
+                    var row = "<tr><td>" + process.pid + "</td><td>" + process.name + "</td><td>" + format_create_time(process.create_time) + "</td></tr>";
+                    $("#system-process-table tbody").append(row);
+                });
+
+                // Update Kernel Processes
+                data.kernel_processes.forEach(function(process) {
+                    var row = "<tr><td>" + process.pid + "</td><td>" + process.name + "</td><td>" + format_create_time(process.create_time) + "</td></tr>";
+                    $("#kernel-process-table tbody").append(row);
+                });
+            });
+        }
+
+        function format_create_time(create_time) {
+            return new Date(create_time * 1000).toLocaleString();
+        }
+
+        // Fetch data every 5 seconds (adjust as needed)
+        setInterval(updateTable, 5000);
+    </script>
+</body>
+</html>
